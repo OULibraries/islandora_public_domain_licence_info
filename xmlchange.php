@@ -41,7 +41,22 @@ if($handle = opendir($file_path)){
                                         $xml = $xml->saveXML();
                                         file_put_contents($ds_file_path, $xml);
                                     }
-                                    elseif($ds_type == "DC" && $xml_root->getElementsByTagName("rights")->length == 0){
+                                    elseif($ds_type == "DC"){
+                                        $has_public_domain_right = false;
+                                        $rights = $xml_root->getElementsByTagName("rights");
+                                        if($xml_root->getElementsByTagName("rights")->length > 0){
+                                            foreach ($rights as $right_node) {
+                                                if($right_node->nodeValue == "public domain"){
+                                                    $has_public_domain_right = true;
+                                                }
+                                                else{
+                                                    $xml_root->removeChild($right_node);
+                                                }
+                                            }
+                                        }
+                                        if($has_public_domain_right == true){
+                                            continue;
+                                        }
                                         $rights = $xml->createElement("dc:rights");
                                         $rightsTextnode = $xml->createTextNode("public domain");
                                         $rights->appendChild($rightsTextnode);
